@@ -62,7 +62,6 @@ const NewsWriter = styled.div`
 `;
 
 interface FeedColumnProps {
-  key: string;
   feedData: Feed;
   dragRef: React.LegacyRef<HTMLDivElement> | undefined;
   style: React.CSSProperties | undefined;
@@ -71,7 +70,6 @@ interface FeedColumnProps {
 }
 
 const FeedColumn = ({
-  key,
   feedData,
   dragRef,
   style,
@@ -81,7 +79,7 @@ const FeedColumn = ({
   const items = feedData.items;
 
   return (
-    <ColumnBlock key={key} ref={dragRef} style={style} {...draggableProps}>
+    <ColumnBlock ref={dragRef} style={style} {...draggableProps}>
       <ColumnHeader {...dragHandleProps}>{feedData.title}</ColumnHeader>
       <ColumnNewsEntities>
         {items.map((e, i) => {
