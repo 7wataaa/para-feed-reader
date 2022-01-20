@@ -103,4 +103,5 @@ const FeedColumn = ({
   );
 };
 
-export default FeedColumn;
+export { FeedColumn };
+export type { Feed };
