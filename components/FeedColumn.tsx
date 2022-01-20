@@ -32,7 +32,7 @@ const ColumnHeader = styled.div`
   background-color: #f7f7f7;
 `;
 
-const ColumnFeeds = styled.div`
+const ColumnNewsEntities = styled.div`
   padding: 0 1.6rem;
 `;
 
@@ -83,7 +83,7 @@ const FeedColumn = ({
   return (
     <ColumnBlock key={key} ref={dragRef} style={style} {...draggableProps}>
       <ColumnHeader {...dragHandleProps}>{feedData.title}</ColumnHeader>
-      <ColumnFeeds>
+      <ColumnNewsEntities>
         {items.map((e, i) => {
           const date = new Date(e.isoDate ?? '').toLocaleDateString();
           const title = decodeHTMLEscape(e.title ?? '');
@@ -100,7 +100,7 @@ const FeedColumn = ({
             </NewsEntity>
           );
         })}
-      </ColumnFeeds>
+      </ColumnNewsEntities>
     </ColumnBlock>
   );
 };
