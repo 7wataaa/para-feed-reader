@@ -6,7 +6,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "dependencies": {
     "linaria": "^2.3.1",
@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.16.7",
+    "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@types/jest": "^27.4.0",
     "@types/node": "17.0.10",
