@@ -15,21 +15,17 @@ const SignInPage: NextPage = () => {
   }
 
   if (status == 'authenticated') {
-    // TODO ログインできているときの処理を実装
-    console.log(session);
-    return (
-      <>
-        <h1>authenticated.</h1>
-        <button onClick={() => signOut()}>ログアウト</button>
-      </>
-    );
+    // ログイン時はルートディレクトリにリダイレクトされるのでここには来ないはず
+    throw Error('Not redirected after sign-in.');
   }
 
   return (
     <>
       <h1>Para Feed Reader</h1>
       <br />
-      <button onClick={() => signIn('google')}>サインインして始める</button>
+      <button onClick={() => signIn('google', { callbackUrl: '/' })}>
+        サインインして始める
+      </button>
     </>
   );
 };
