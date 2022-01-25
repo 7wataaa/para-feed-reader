@@ -11,6 +11,7 @@
   "dependencies": {
     "linaria": "^2.3.1",
     "next": "12.0.8",
+    "next-auth": "^4.1.2",
     "next-linaria": "^0.11.0",
     "react": "17.0.2",
     "react-beautiful-dnd": "^13.1.0",
