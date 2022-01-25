@@ -70,3 +70,4 @@ const DnDFeedColumns = ({ feedsData }: { feedsData: FeedColumData[] }) => {
 };
 
 export { DnDFeedColumns };
+export type { FeedColumData };
