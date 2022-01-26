@@ -1,4 +1,5 @@
 import { styled } from 'linaria/react';
+import Link from 'next/link';
 import {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
@@ -44,6 +45,16 @@ const NewsTitle = styled.a`
   margin-bottom: 100px;
   font-weight: bold;
   word-break: break-word;
+  text-decoration: none;
+  color: black;
+
+  :visited {
+    color: #9d71a8;
+  }
+
+  :hover {
+    text-decoration: underline;
+  }
 `;
 
 const NewsContent = styled.div`
@@ -87,11 +98,16 @@ const FeedColumn = ({
           const title = decodeHTMLEscape(e.title ?? '');
           const content = decodeHTMLEscape(e.content ?? '');
           const writer: string | null = e.creator ?? e.author;
+          const url = e.link ?? '';
 
           return (
             <NewsEntity key={i}>
               <NewsDate>{date}</NewsDate>
-              <NewsTitle>{title}</NewsTitle>
+              <Link href={url} passHref>
+                <NewsTitle target="_blank" rel="noopener noreferrer">
+                  {title}
+                </NewsTitle>
+              </Link>
               <NewsContent>{content}</NewsContent>
               {/* ↓creatorまたはauthorのデータが有れば表示 */}
               {writer && <NewsWriter>By {writer}</NewsWriter>}
