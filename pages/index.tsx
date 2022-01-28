@@ -5,10 +5,12 @@ import Parser from 'rss-parser';
 import { CenterContainer } from '../components/CenterContainer';
 import { DnDFeedColumns, FeedColumData } from '../components/DnDFeedColumns';
 import { LoadingTypography } from '../components/LoadingTypography';
+import { SideBar } from '../components/SideBar';
 
 const rssParser = new Parser();
 
 const Root = styled.div`
+  display: flex;
   position: absolute;
   top: 0px;
   left: 0px;
@@ -64,6 +66,7 @@ const Home: NextPage = () => {
 
   return (
     <Root>
+      <SideBar />
       <DnDFeedColumns feedsData={feedsData} />
     </Root>
   );
