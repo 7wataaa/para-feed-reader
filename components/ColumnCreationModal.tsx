@@ -10,16 +10,11 @@ const urlRegExp =
   /https?:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#\u3000-\u30FE\u4E00-\u9FA0\uFF01-\uFFE3]+/g;
 
 const ModalContent = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  right: auto;
-  bottom: auto;
   width: 80%;
   max-width: 500px;
-  margin-right: -50%;
+  height: 50%;
+  margin: auto;
   padding: 20px;
-  transform: translate(-50%, -50%);
   background-color: #fff;
   border-radius: 0.4rem;
 
@@ -113,7 +108,12 @@ const ColumnCreationModal = ({
         <ModalContent {...props}>{children}</ModalContent>
       )}
       style={{
-        overlay: { backgroundColor: 'rgba(0, 0, 0, 0.3)' },
+        overlay: {
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          position: 'relative',
+          width: '100vw',
+          height: '100vh',
+        },
       }}
       {...props}
     >
