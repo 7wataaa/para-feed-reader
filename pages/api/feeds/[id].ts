@@ -28,7 +28,7 @@ const feedIdApi = async (
   // ユーザーの情報
   const session = await getSession({ req });
 
-  if (!session) {
+  if (!session || !session.user?.id) {
     res.statusCode = 401;
     res.statusMessage = 'Unauthorized';
     res.end();
