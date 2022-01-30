@@ -21,5 +21,15 @@ export default NextAuth({
         email: user.email,
       },
     }),
+    signIn: async ({ user, account, profile, email, credentials }) => {
+      await prisma.feedOrder.create({
+        data: {
+          userId: user.id,
+          feedIdOrder: [],
+        },
+      });
+
+      return true;
+    },
   },
 });
