@@ -1,13 +1,15 @@
+import axios from 'axios';
 import { styled } from 'linaria/lib/react';
 import type { NextPage } from 'next';
-import { useEffect, useState } from 'react';
-import Parser from 'rss-parser';
+import { useContext, useEffect } from 'react';
 import { CenterContainer } from '../components/CenterContainer';
-import { DnDFeedColumns, FeedColumData } from '../components/DnDFeedColumns';
+import { DnDFeedColumns } from '../components/DnDFeedColumns';
 import { LoadingTypography } from '../components/LoadingTypography';
 import { SideBar } from '../components/SideBar';
-
-const rssParser = new Parser();
+import {
+  FeedIdOrderContext
+} from '../state/FeedIdOrderProvider';
+import { FeedSubscribingGETApiResponseBody } from './api/feeds/subscribing';
 
 const Root = styled.div`
   display: flex;
@@ -22,33 +24,36 @@ const Root = styled.div`
 `;
 
 const Home: NextPage = () => {
-  // カラムで表示するフィードのデータ
-  const [feedsData, setFeedsData] = useState<null | FeedColumData[]>(null);
+  const [feedIdOrder, setFeedIdOrder] = useContext(FeedIdOrderContext);
 
   useEffect(() => {
-    const readRawFeed = async () => {
-      // ユーザーのフィードをDBから持ってきて表示するモック
-      const rawFeedData = await fetchFeedStrs();
+    const fetchAllFeedIds = async () => {
+      console.log('Fetch subscribing FeedIds');
 
-      // すべてのフィードをパース
-      const parsedFeeds = await Promise.all([
-        ...rawFeedData.map((e) => rssParser.parseString(e.xml)),
-      ]);
+      // ユーザーが購読しているフィード一覧の取得を試みる
+      const subscribingFeedIdsRes = await axios
+        .get<FeedSubscribingGETApiResponseBody>('/api/feeds/subscribing')
+        .catch((e) => {
+          console.error(e);
+          return null;
+        });
 
-      // indexとuuidとパースされたデータを結合
-      const allFeedData = rawFeedData.map((e, i) => ({
-        index: i,
-        uuid: e.uuid,
-        feedData: parsedFeeds[i],
-      }));
+      if (!subscribingFeedIdsRes || subscribingFeedIdsRes.status !== 200) {
+        throw Error('Failed to get FeedIds');
+      }
 
-      setFeedsData(allFeedData);
+      // 購読しているフィードのIDたち
+      const { subscribingFeedIdOrder } = subscribingFeedIdsRes.data.data;
+
+      console.log(subscribingFeedIdOrder);
+
+      setFeedIdOrder(subscribingFeedIdOrder);
     };
 
-    readRawFeed();
+    fetchAllFeedIds();
   }, []);
 
-  if (!feedsData) {
+  if (!feedIdOrder) {
     return (
       <CenterContainer>
         <LoadingTypography />
@@ -67,203 +72,9 @@ const Home: NextPage = () => {
   return (
     <Root>
       <SideBar />
-      <DnDFeedColumns feedsData={feedsData} />
+      <DnDFeedColumns />
     </Root>
   );
 };
 
 export default Home;
-
-// フィード取得のモックアップ
-const fetchFeedStrs = async (): Promise<{ uuid: string; xml: string }[]> => {
-  // 2秒待つ
-  await new Promise<void>((res, _) => {
-    setTimeout(() => {
-      res();
-    }, 2000);
-  });
-
-  const feedMock = (uuid: string, feed: string) => {
-    return {
-      uuid: uuid,
-      xml: feed.replace(/&/g, '&amp;').replace(/-/g, '&#45;'),
-    };
-  };
-
-  return [
-    feedMock('News-One', _rawFeedStr1),
-    feedMock('News-Two', _rawFeedStr2),
-    feedMock('News-Three', _rawFeedStr3),
-  ];
-};
-
-const _rawFeedStr1 = `<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-<channel>
-<title>News-One</title>
-<link>https://example.com/</link>
-<description>テストコード用の形式だけ同じフィードです。</description>
-<language>ja</language>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-</channel>
-</rss>`;
-
-const _rawFeedStr2 = `<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-<channel>
-<title>News-Two</title>
-<link>https://example.com/</link>
-<description>テストコード用の形式だけ同じフィードです。</description>
-<language>ja</language>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-</channel>
-</rss>`;
-
-const _rawFeedStr3 = `<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-<channel>
-<title>News-Three</title>
-<link>https://example.com/</link>
-<description>テストコード用の形式だけ同じフィードです。</description>
-<language>ja</language>
-<item>
-<title>記事1のタイトル</title>
-<link>https://example.com/</link>
-<description>記事1の説明文</description>
-<pubDate>Fri, 14 Jan 2022 21:45:00 +0900</pubDate>
-<guid>記事1</guid>
-<enclosure length="0" type="image/png" url="https://placehold.jp/740x417.png"/>
-<dc:creator>著者A</dc:creator>
-</item>
-</channel>
-</rss>`;

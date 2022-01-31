@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { styled } from 'linaria/react';
 import Link from 'next/link';
 import {
@@ -5,7 +6,31 @@ import {
   DraggableProvidedDragHandleProps,
 } from 'react-beautiful-dnd';
 import Parser from 'rss-parser';
+import useSWR from 'swr';
+import { FeedIdApiResponseBody } from '../pages/api/feeds/[id]';
 import { decodeHTMLEscape } from '../util/decodeHTMLEscape';
+
+const rssParser = new Parser();
+
+const fetcher = async (url: string) => {
+  console.log(`Getting from ${url}`);
+
+  const getRes = await axios.get<FeedIdApiResponseBody>(url);
+
+  if (getRes.status != 200) {
+    const errorMessage = `code: ${getRes.status}, message: ${
+      getRes?.data?.message ?? getRes.statusText
+    }`;
+
+    console.error(errorMessage);
+
+    throw Error(errorMessage);
+  }
+
+  const parsedFeed = await rssParser.parseString(getRes.data.data.cache);
+
+  return parsedFeed;
+};
 
 type Feed = {
   [key: string]: any;
@@ -73,7 +98,7 @@ const NewsWriter = styled.div`
 `;
 
 interface FeedColumnProps {
-  feedData: Feed;
+  feedId: string;
   dragRef: React.LegacyRef<HTMLDivElement> | undefined;
   style: React.CSSProperties | undefined;
   draggableProps: DraggableProvidedDraggableProps | undefined;
@@ -81,12 +106,37 @@ interface FeedColumnProps {
 }
 
 const FeedColumn = ({
-  feedData,
+  feedId,
   dragRef,
   style,
   draggableProps,
   dragHandleProps,
 }: FeedColumnProps) => {
+  const { data, error } = useSWR(`/api/feeds/${feedId}`, fetcher);
+
+  if (error) {
+    return (
+      <ColumnBlock ref={dragRef} style={style} {...draggableProps}>
+        <ColumnHeader {...dragHandleProps}>Error</ColumnHeader>
+        <ColumnNewsEntities>
+          データの読み込みができませんでした。
+        </ColumnNewsEntities>
+      </ColumnBlock>
+    );
+  }
+
+  if (!data) {
+    return (
+      <ColumnBlock ref={dragRef} style={style} {...draggableProps}>
+        <ColumnHeader {...dragHandleProps}>Loading…</ColumnHeader>
+        {/* TODO スケルトンを表示させる */}
+        <ColumnNewsEntities>Loading…</ColumnNewsEntities>
+      </ColumnBlock>
+    );
+  }
+
+  const feedData = data;
+
   const items = feedData.items;
 
   return (

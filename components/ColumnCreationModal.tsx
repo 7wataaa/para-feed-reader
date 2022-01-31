@@ -1,7 +1,11 @@
+import { ErrorMessage } from '@hookform/error-message';
+import axios from 'axios';
 import { styled } from 'linaria/lib/react';
+import { useContext } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import Modal from 'react-modal';
-import { ErrorMessage } from '@hookform/error-message';
+import { FeedCreateResponseBody } from '../pages/api/feeds/create';
+import { FeedIdOrderContext } from '../state/FeedIdOrderProvider';
 
 // https://reactcommunity.org/react-modal/examples/set_app_element/
 Modal.setAppElement('#__next');
@@ -89,15 +93,37 @@ const ColumnCreationModal = ({
   modalClose,
   ...props
 }: ReactModal.Props & { modalClose: () => void }) => {
+  const [feedIdOrder, setFeedIdOrder] = useContext(FeedIdOrderContext);
+
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data: any) => {
-    // TODO DBへの登録
-    console.log(data);
+  const onSubmit = async (data: any) => {
+    const url = data.feedURLForm as string;
+
+    if (!url) {
+      console.error(url);
+      return;
+    }
+
+    // urlからDBのfeedIdを取得する
+    const feedIdRes = await axios
+      .post<FeedCreateResponseBody>(`/api/feeds/create?url=${url}`)
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
+
+    if (!feedIdRes || feedIdRes.status !== 200) {
+      return;
+    }
+
+    const newFeedId = feedIdRes.data.data.feedId;
+
+    setFeedIdOrder([...(feedIdOrder ?? []), newFeedId], { isSend: true });
   };
 
   return (

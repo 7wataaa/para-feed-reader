@@ -1,5 +1,5 @@
 import { styled } from 'linaria/lib/react';
-import { useState } from 'react';
+import { useContext } from 'react';
 import {
   DragDropContext,
   Draggable,
@@ -7,13 +7,10 @@ import {
   DropResult,
   ResponderProvided,
 } from 'react-beautiful-dnd';
+import { FeedIdOrderContext } from '../state/FeedIdOrderProvider';
 import { reorder } from '../util/reorder';
-import { Feed, FeedColumn } from './FeedColumn';
-
-interface FeedColumData {
-  uuid: string;
-  feedData: Feed;
-}
+import { CenterContainer } from './CenterContainer';
+import { FeedColumn } from './FeedColumn';
 
 const FeedsArea = styled.div`
   display: flex;
@@ -24,10 +21,10 @@ const FeedsArea = styled.div`
 
 // 参考: https://codesandbox.io/s/mmrp44okvj
 
-const DnDFeedColumns = ({ feedsData }: { feedsData: FeedColumData[] }) => {
-  const [feedColumnsData, setFeedColumnsData] = useState(feedsData);
+const DnDFeedColumns = () => {
+  const [feedIdOrder, setFeedIdOrder] = useContext(FeedIdOrderContext);
 
-  const dragEndHandler = (result: DropResult, _: ResponderProvided) => {
+  const dragEndHandler = async (result: DropResult, _: ResponderProvided) => {
     // エリアの外に落とされたときには何もしない
     if (!result.destination) {
       return;
@@ -35,12 +32,12 @@ const DnDFeedColumns = ({ feedsData }: { feedsData: FeedColumData[] }) => {
 
     // 要素を移動させたリストを生成
     const items = reorder(
-      feedColumnsData,
+      feedIdOrder ?? [],
       result.source.index,
       result.destination.index
     );
 
-    setFeedColumnsData(items);
+    setFeedIdOrder(items, { isSend: true });
   };
 
   return (
@@ -48,11 +45,11 @@ const DnDFeedColumns = ({ feedsData }: { feedsData: FeedColumData[] }) => {
       <Droppable droppableId="feed-columns" direction="horizontal">
         {(provided, _) => (
           <FeedsArea ref={provided.innerRef} {...provided.droppableProps}>
-            {feedColumnsData.map((e, i) => (
-              <Draggable key={e.uuid} index={i} draggableId={e.uuid}>
+            {(feedIdOrder ?? []).map((e, i) => (
+              <Draggable key={e} index={i} draggableId={e}>
                 {(provided, _) => (
                   <FeedColumn
-                    feedData={e.feedData}
+                    feedId={e}
                     dragRef={provided.innerRef}
                     style={provided.draggableProps.style}
                     dragHandleProps={provided.dragHandleProps}
@@ -70,4 +67,3 @@ const DnDFeedColumns = ({ feedsData }: { feedsData: FeedColumData[] }) => {
 };
 
 export { DnDFeedColumns };
-export type { FeedColumData };
