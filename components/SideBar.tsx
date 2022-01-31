@@ -1,7 +1,8 @@
 import { styled } from 'linaria/lib/react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { ColumnCreationModal } from './ColumnCreationModal';
+import { ColumnCreationModal } from './modals/ColumnCreationModal';
+import { UserModal } from './modals/UserModal';
 import { UserAvatar } from './UserAvatar';
 
 const SideBarArea = styled.div`
@@ -41,27 +42,36 @@ const ModalDisplayButton = styled.button`
 `;
 
 const SideBar = () => {
-  const [modalIsOpen, setIsOpen] = useState(false);
+  const [isCreationModalOpen, setCreationModalOpen] = useState(false);
+
+  const [isUserModalOpen, setUserModalOpen] = useState(false);
 
   const { data: session } = useSession();
 
   return (
     <SideBarArea>
-      <ModalDisplayButton onClick={() => setIsOpen(true)}>
+      <ModalDisplayButton onClick={() => setCreationModalOpen(true)}>
         ＋
       </ModalDisplayButton>
       {session?.user?.id && session.user.image && (
         <UserAvatar
+          provider="google"
           userId={session.user.id}
           photoUrl={session.user.image}
-          provider="google"
+          onClick={() => setUserModalOpen(true)}
         />
       )}
       <ColumnCreationModal
-        isOpen={modalIsOpen}
-        modalClose={() => setIsOpen(false)}
-        onRequestClose={() => setIsOpen(false)}
+        isOpen={isCreationModalOpen}
+        modalClose={() => setCreationModalOpen(false)}
+        onRequestClose={() => setCreationModalOpen(false)}
         contentLabel="Modal for creating a new column"
+      />
+      <UserModal
+        isOpen={isUserModalOpen}
+        modalClose={() => setUserModalOpen(false)}
+        onRequestClose={() => setUserModalOpen(false)}
+        contentLabel="Modal for displaying user details"
       />
     </SideBarArea>
   );
