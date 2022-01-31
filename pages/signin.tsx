@@ -1,10 +1,21 @@
 import { NextPage } from 'next';
 import { useSession, signIn, signOut } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import { CenterContainer } from '../components/CenterContainer';
 import { LoadingTypography } from '../components/LoadingTypography';
+import { RedirectingTypography } from '../components/RedirectingTypography';
 
 const SignInPage: NextPage = () => {
-  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/');
+    }
+  });
 
   if (status == 'loading') {
     return (
@@ -15,8 +26,11 @@ const SignInPage: NextPage = () => {
   }
 
   if (status == 'authenticated') {
-    // ログイン時はルートディレクトリにリダイレクトされるのでここには来ないはず
-    throw Error('Not redirected after sign-in.');
+    return (
+      <CenterContainer>
+        <RedirectingTypography />
+      </CenterContainer>
+    );
   }
 
   return (

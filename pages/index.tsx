@@ -1,10 +1,13 @@
 import axios from 'axios';
 import { styled } from 'linaria/lib/react';
 import type { NextPage } from 'next';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
 import { CenterContainer } from '../components/CenterContainer';
 import { DnDFeedColumns } from '../components/DnDFeedColumns';
 import { LoadingTypography } from '../components/LoadingTypography';
+import { RedirectingTypography } from '../components/RedirectingTypography';
 import { SideBar } from '../components/SideBar';
 import { FeedIdOrderContext } from '../provider/FeedIdOrderProvider';
 import { FeedSubscribingGETApiResponseBody } from './api/feeds/subscribing';
@@ -24,8 +27,17 @@ const Root = styled.div`
 const Home: NextPage = () => {
   const [feedIdOrder, setFeedIdOrder] = useContext(FeedIdOrderContext);
 
+  const router = useRouter();
+
+  const { status } = useSession();
+
   useEffect(() => {
     const fetchAllFeedIds = async () => {
+      if (status !== 'authenticated') {
+        router.push('/signin');
+        return;
+      }
+
       console.log('Fetch subscribing FeedIds');
 
       // ユーザーが購読しているフィード一覧の取得を試みる
@@ -50,6 +62,14 @@ const Home: NextPage = () => {
 
     fetchAllFeedIds();
   }, []);
+
+  if (status !== 'authenticated') {
+    return (
+      <CenterContainer>
+        <RedirectingTypography />
+      </CenterContainer>
+    );
+  }
 
   if (!feedIdOrder) {
     return (
