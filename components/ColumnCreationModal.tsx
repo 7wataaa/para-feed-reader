@@ -4,6 +4,7 @@ import { styled } from 'linaria/lib/react';
 import { useContext } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import Modal from 'react-modal';
+import { SUBSCRIPTION_LIMIT } from '../config';
 import { FeedCreateResponseBody } from '../pages/api/feeds/create';
 import { FeedIdOrderContext } from '../state/FeedIdOrderProvider';
 
@@ -126,6 +127,8 @@ const ColumnCreationModal = ({
     setFeedIdOrder([...(feedIdOrder ?? []), newFeedId], { isSend: true });
   };
 
+  const isSubscribingLimit = (feedIdOrder?.length ?? 0) == SUBSCRIPTION_LIMIT;
+
   return (
     <Modal
       isOpen={isOpen}
@@ -166,7 +169,9 @@ const ColumnCreationModal = ({
             <FormErrorMessage>{message}</FormErrorMessage>
           )}
         />
-        <FeedCreationButton type="submit">追加</FeedCreationButton>
+        <FeedCreationButton type="submit" disabled={isSubscribingLimit}>
+          追加
+        </FeedCreationButton>
       </form>
     </Modal>
   );
