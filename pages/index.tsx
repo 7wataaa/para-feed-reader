@@ -61,14 +61,6 @@ const Home: NextPage = () => {
     );
   }
 
-  if (feedsData.length === 0) {
-    return (
-      <CenterContainer>
-        <h1>Feedを追加してください...</h1>
-      </CenterContainer>
-    );
-  }
-
   return (
     <Root>
       <SideBar />

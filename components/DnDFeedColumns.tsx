@@ -40,6 +40,14 @@ const DnDFeedColumns = () => {
     setFeedIdOrder(items, { isSend: true });
   };
 
+  if (feedIdOrder?.length === 0 ?? true) {
+    return (
+      <CenterContainer>
+        <h1>Feedを追加してください</h1>
+      </CenterContainer>
+    );
+  }
+
   return (
     <DragDropContext onDragEnd={dragEndHandler}>
       <Droppable droppableId="feed-columns" direction="horizontal">
