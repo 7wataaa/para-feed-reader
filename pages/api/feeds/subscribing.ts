@@ -103,7 +103,9 @@ const feedsSubscibingPOSTApi = async (
   const body = req.body as FeedSubscribingPOSTBody | null;
 
   // すべての要素がUUIDの形式かどうか
-  const testAll = body?.subscribingFeedIdOrder.every(uuidRegExp.test) ?? false;
+  const testAll =
+    body?.subscribingFeedIdOrder.every(uuidRegExp.test.bind(uuidRegExp)) ??
+    false;
 
   if (!body || !('subscribingFeedIdOrder' in body) || !testAll) {
     res.statusCode = 400;
