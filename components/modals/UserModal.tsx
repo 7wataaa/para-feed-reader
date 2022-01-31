@@ -30,11 +30,11 @@ const SignOutButton = styled.button`
   margin: 16px 10px;
   padding: 12px;
   background-color: #fff;
-  color: red;
+  color: #e5534b;
   font-size: 1.2rem;
   border-radius: 4px;
   border: none;
-  box-shadow: 0 0 0 1px #ccc inset;
+  box-shadow: 0 0 0 1px #c54d47 inset;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -46,7 +46,7 @@ const SignOutButton = styled.button`
   }
 
   :hover {
-    background-color: #fd5454;
+    background-color: #e5534b;
     color: #fff;
   }
 `;
