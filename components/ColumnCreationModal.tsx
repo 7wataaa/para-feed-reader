@@ -6,7 +6,7 @@ import { Controller, useForm } from 'react-hook-form';
 import Modal from 'react-modal';
 import { SUBSCRIPTION_LIMIT } from '../config';
 import { FeedCreateResponseBody } from '../pages/api/feeds/create';
-import { FeedIdOrderContext } from '../state/FeedIdOrderProvider';
+import { FeedIdOrderContext } from '../provider/FeedIdOrderProvider';
 
 // https://reactcommunity.org/react-modal/examples/set_app_element/
 Modal.setAppElement('#__next');

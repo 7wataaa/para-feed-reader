@@ -7,7 +7,7 @@ import {
   DropResult,
   ResponderProvided,
 } from 'react-beautiful-dnd';
-import { FeedIdOrderContext } from '../state/FeedIdOrderProvider';
+import { FeedIdOrderContext } from '../provider/FeedIdOrderProvider';
 import { reorder } from '../util/reorder';
 import { CenterContainer } from './CenterContainer';
 import { FeedColumn } from './FeedColumn';

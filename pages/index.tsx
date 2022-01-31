@@ -6,9 +6,7 @@ import { CenterContainer } from '../components/CenterContainer';
 import { DnDFeedColumns } from '../components/DnDFeedColumns';
 import { LoadingTypography } from '../components/LoadingTypography';
 import { SideBar } from '../components/SideBar';
-import {
-  FeedIdOrderContext
-} from '../state/FeedIdOrderProvider';
+import { FeedIdOrderContext } from '../provider/FeedIdOrderProvider';
 import { FeedSubscribingGETApiResponseBody } from './api/feeds/subscribing';
 
 const Root = styled.div`
