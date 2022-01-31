@@ -49,15 +49,25 @@ const feedsSubscibingGETApi = async (
   }
 
   const subscribingFeeds = await prisma.feedOrder
-    .findUnique({
+    .upsert({
       where: {
         userId: session.user.id,
+      },
+      create: {
+        // もしsession.userのfeedIdOrderがまだ存在していなかったら作成する
+        userId: session.user.id,
+        feedIdOrder: [],
+      },
+      update: {
+        // すでにあったら何もしない
       },
     })
     .catch((e) => {
       console.error(e);
       return null;
     });
+
+  console.log(`(${subscribingFeeds})を取得 by ${session.user.id}`);
 
   if (!subscribingFeeds) {
     res.statusCode = 500;
@@ -100,6 +110,8 @@ const feedsSubscibingPOSTApi = async (
     return;
   }
 
+  console.log(session.user.id);
+
   const body = req.body as FeedSubscribingPOSTBody | null;
 
   // すべての要素がUUIDの形式かどうか
@@ -121,11 +133,17 @@ const feedsSubscibingPOSTApi = async (
     return;
   }
 
-  const newFeedOrder = await prisma.feedOrder.update({
+  const newFeedOrder = await prisma.feedOrder.upsert({
     where: {
       userId: session.user.id,
     },
-    data: {
+    create: {
+      // もしsession.userのfeedIdOrderがまだ存在していなかったら作成する
+      userId: session.user.id,
+      feedIdOrder: body.subscribingFeedIdOrder,
+    },
+    update: {
+      // すでにあったらそれを更新する
       feedIdOrder: body.subscribingFeedIdOrder,
     },
   });

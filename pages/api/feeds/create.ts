@@ -49,6 +49,8 @@ const feedCreateApi = async (
     return;
   }
 
+  console.log(`(${url})のキャッシュを作成 by ${session.user.id}`);
+
   const alreadyFeedCache = await prisma.feedCaches.findUnique({
     where: {
       url: url,
