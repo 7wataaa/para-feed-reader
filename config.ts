@@ -1,0 +1,3 @@
+const SUBSCRIPTION_LIMIT = 50;
+
+export { SUBSCRIPTION_LIMIT };
