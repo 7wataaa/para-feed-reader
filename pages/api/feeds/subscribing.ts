@@ -139,3 +139,7 @@ const feedsSubscibingPOSTApi = async (
 };
 
 export default feedsSubscibingApi;
+export type {
+  FeedSubscribingPOSTApiResponseBody,
+  FeedSubscribingGETApiResponseBody,
+};

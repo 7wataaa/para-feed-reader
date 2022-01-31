@@ -77,3 +77,4 @@ const feedIdApi = async (
 };
 
 export default feedIdApi;
+export type { FeedIdApiResponseBody };

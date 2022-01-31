@@ -123,3 +123,4 @@ const feedCreateApi = async (
 };
 
 export default feedCreateApi;
+export type { FeedCreateResponseBody };
