@@ -2,5 +2,6 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 # Para Feed Reader
 ### 複数のRSSフィードを表示できるRSSフィードリーダー
-![para-feed-reader](https://user-images.githubusercontent.com/65275342/151816604-fc61dec6-2822-4129-be7e-3fffe0f24ab9.png)
+
+![para-feed-reader](https://user-images.githubusercontent.com/65275342/151821117-5d0bad6a-e40d-4a76-841d-92eff2ca6039.png)
 
