@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { ColumnCreationModal } from './modals/ColumnCreationModal';
 import { UserModal } from './modals/UserModal';
 import { UserAvatar } from './UserAvatar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const SideBarArea = styled.div`
   display: flex;
@@ -51,7 +53,7 @@ const SideBar = () => {
   return (
     <SideBarArea>
       <ModalDisplayButton onClick={() => setCreationModalOpen(true)}>
-        ＋
+        <FontAwesomeIcon icon={faPlus} />
       </ModalDisplayButton>
       {session?.user?.id && session.user.image && (
         <UserAvatar
