@@ -53,10 +53,10 @@ const FeedDetailModal = ({
   const [feedIdOrder, setFeedIdOrder] = useContext(FeedIdOrderContext);
 
   const onClickHandler = async () => {
-    // feedIdOrderから引数で受け取るフィードのIDを削除した配列
+    // 引数で受け取ったフィードのIDをfeedIdOrderから削除した配列
     const newFeedIdOrder = (feedIdOrder ?? []).filter((e) => e !== feedId);
 
-    // DBにも保存
+    // 表示を更新、DBにも保存
     setFeedIdOrder(newFeedIdOrder, { isSend: true });
   };
 
