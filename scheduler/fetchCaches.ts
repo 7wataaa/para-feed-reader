@@ -34,6 +34,10 @@ const sleep3s = () => sleep(3000);
       return null;
     });
 
+    if (!getRes) {
+      continue;
+    }
+
     // 取得した文字列のパースを試みる
     const parsedFeed: ParseResult = await rssParser
       .parseString(getRes.data)
