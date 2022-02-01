@@ -1,6 +1,9 @@
+import { faBars } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import { styled } from 'linaria/react';
 import Link from 'next/link';
+import { useState } from 'react';
 import {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
@@ -9,6 +12,7 @@ import Parser from 'rss-parser';
 import useSWR from 'swr';
 import { FeedIdApiResponseBody } from '../pages/api/feeds/[id]';
 import { decodeHTMLEscape } from '../util/decodeHTMLEscape';
+import { FeedDetailModal } from './modals/FeedDetailModal';
 
 const rssParser = new Parser();
 
@@ -49,6 +53,7 @@ const ColumnBlock = styled.div`
 `;
 
 const ColumnHeader = styled.div`
+  display: flex;
   position: sticky;
   top: 0;
   padding: 13px 0;
@@ -56,6 +61,17 @@ const ColumnHeader = styled.div`
   font-weight: lighter;
   font-size: large;
   background-color: #f7f7f7;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const ColumnHeaderButton = styled.button`
+  background-color: unset;
+  width: 35px;
+  height: 35px;
+  margin-right: 1.6rem;
+  font-size: 1.5rem;
+  border: none;
 `;
 
 const ColumnNewsEntities = styled.div`
@@ -112,6 +128,8 @@ const FeedColumn = ({
   draggableProps,
   dragHandleProps,
 }: FeedColumnProps) => {
+  const [isFeedDetailModalOpen, setFeedDetailModalOpen] = useState(false);
+
   const { data, error } = useSWR(`/api/feeds/${feedId}`, fetcher);
 
   if (error) {
@@ -140,32 +158,47 @@ const FeedColumn = ({
   const items = feedData.items;
 
   return (
-    <ColumnBlock ref={dragRef} style={style} {...draggableProps}>
-      <ColumnHeader {...dragHandleProps}>{feedData.title}</ColumnHeader>
-      <ColumnNewsEntities>
-        {items.map((e, i) => {
-          const date = new Date(e.isoDate ?? '').toLocaleDateString();
-          const title = decodeHTMLEscape(e.title ?? '');
-          const content = decodeHTMLEscape(e.content ?? '');
-          const writer: string | null = e.creator ?? e.author;
-          const url = e.link ?? '';
+    <>
+      <ColumnBlock ref={dragRef} style={style} {...draggableProps}>
+        <ColumnHeader {...dragHandleProps}>
+          <>
+            {feedData.title}
+            <ColumnHeaderButton onClick={() => setFeedDetailModalOpen(true)}>
+              <FontAwesomeIcon icon={faBars} />
+            </ColumnHeaderButton>
+          </>
+        </ColumnHeader>
+        <ColumnNewsEntities>
+          {items.map((e, i) => {
+            const date = new Date(e.isoDate ?? '').toLocaleDateString();
+            const title = decodeHTMLEscape(e.title ?? '');
+            const content = decodeHTMLEscape(e.content ?? '');
+            const writer: string | null = e.creator ?? e.author;
+            const url = e.link ?? '';
 
-          return (
-            <NewsEntity key={i}>
-              <NewsDate>{date}</NewsDate>
-              <Link href={url} passHref>
-                <NewsTitle target="_blank" rel="noopener noreferrer">
-                  {title}
-                </NewsTitle>
-              </Link>
-              <NewsContent>{content}</NewsContent>
-              {/* ↓creatorまたはauthorのデータが有れば表示 */}
-              {writer && <NewsWriter>By {writer}</NewsWriter>}
-            </NewsEntity>
-          );
-        })}
-      </ColumnNewsEntities>
-    </ColumnBlock>
+            return (
+              <NewsEntity key={i}>
+                <NewsDate>{date}</NewsDate>
+                <Link href={url} passHref>
+                  <NewsTitle target="_blank" rel="noopener noreferrer">
+                    {title}
+                  </NewsTitle>
+                </Link>
+                <NewsContent>{content}</NewsContent>
+                {/* ↓creatorまたはauthorのデータが有れば表示 */}
+                {writer && <NewsWriter>By {writer}</NewsWriter>}
+              </NewsEntity>
+            );
+          })}
+        </ColumnNewsEntities>
+      </ColumnBlock>
+      <FeedDetailModal
+        isOpen={isFeedDetailModalOpen}
+        feedId={feedId}
+        modalClose={() => setFeedDetailModalOpen(false)}
+        onRequestClose={() => setFeedDetailModalOpen(false)}
+      />
+    </>
   );
 };
 
