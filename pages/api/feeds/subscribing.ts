@@ -67,7 +67,7 @@ const feedsSubscibingGETApi = async (
       return null;
     });
 
-  console.log(`(${subscribingFeeds})を取得 by ${session.user.id}`);
+  console.log(`(${subscribingFeeds?.id})を取得 by ${session.user.id}`);
 
   if (!subscribingFeeds) {
     res.statusCode = 500;

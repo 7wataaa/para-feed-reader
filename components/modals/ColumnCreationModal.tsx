@@ -11,8 +11,7 @@ import { FeedIdOrderContext } from '../../provider/FeedIdOrderProvider';
 // https://reactcommunity.org/react-modal/examples/set_app_element/
 Modal.setAppElement('#__next');
 
-const urlRegExp =
-  /https?:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#\u3000-\u30FE\u4E00-\u9FA0\uFF01-\uFFE3]+/g;
+const urlRegExp = new RegExp(/^https?:\/\/[\w!?/+\-_~;.,*&@#$%()'[\]]+$/);
 
 const ModalContent = styled.div`
   width: 80%;
@@ -100,9 +99,14 @@ const ColumnCreationModal = ({
     control,
     handleSubmit,
     formState: { errors },
+    setError,
+    setValue,
   } = useForm();
 
   const onSubmit = async (data: any) => {
+    // 入力欄を空にする
+    setValue('feedURLForm', '');
+
     const url = data.feedURLForm as string;
 
     if (!url) {
@@ -123,6 +127,17 @@ const ColumnCreationModal = ({
     }
 
     const newFeedId = feedIdRes.data.data.feedId;
+
+    // newFeedIDが登録済みであった場合、登録しない
+    if ((feedIdOrder ?? []).includes(newFeedId)) {
+      // エラー文を表示
+      setError('feedURLForm', {
+        type: 'manual',
+        message: 'このフィードはすでに登録されています',
+      });
+
+      return;
+    }
 
     setFeedIdOrder([...(feedIdOrder ?? []), newFeedId], { isSend: true });
   };
