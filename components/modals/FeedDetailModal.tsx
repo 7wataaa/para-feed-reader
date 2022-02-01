@@ -1,6 +1,7 @@
 import { styled } from 'linaria/lib/react';
-import { signOut, useSession } from 'next-auth/react';
+import { useContext } from 'react';
 import Modal from 'react-modal';
+import { FeedIdOrderContext } from '../../provider/FeedIdOrderProvider';
 
 const ModalContent = styled.div`
   width: 80%;
@@ -14,18 +15,9 @@ const ModalContent = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
 `;
 
-const EmailDiv = styled.div`
-  width: 80%;
-  margin: 10px 0;
-  padding: 12px;
-  font-size: 1.2rem;
-  text-align: center;
-`;
-
-const SignOutButton = styled.button`
+const ColumnDeleteButton = styled.button`
   width: 80%;
   margin: 16px 10px;
   padding: 12px;
@@ -51,13 +43,22 @@ const SignOutButton = styled.button`
   }
 `;
 
-const UserModal = ({
+const FeedDetailModal = ({
   isOpen,
   onRequestClose,
   modalClose,
+  feedId,
   ...props
-}: ReactModal.Props & { modalClose: () => void }) => {
-  const { data: session } = useSession();
+}: ReactModal.Props & { modalClose: () => void; feedId: string }) => {
+  const [feedIdOrder, setFeedIdOrder] = useContext(FeedIdOrderContext);
+
+  const onClickHandler = async () => {
+    // feedIdOrderから引数で受け取るフィードのIDを削除した配列
+    const newFeedIdOrder = (feedIdOrder ?? []).filter((e) => e !== feedId);
+
+    // DBにも保存
+    setFeedIdOrder(newFeedIdOrder, { isSend: true });
+  };
 
   return (
     <Modal
@@ -76,12 +77,11 @@ const UserModal = ({
       }}
       {...props}
     >
-      <EmailDiv>{session?.user?.email ?? ''}</EmailDiv>
-      <SignOutButton onClick={async () => await signOut()}>
-        Sign out
-      </SignOutButton>
+      <ColumnDeleteButton onClick={async () => await onClickHandler()}>
+        フィードを削除
+      </ColumnDeleteButton>
     </Modal>
   );
 };
 
-export { UserModal };
+export { FeedDetailModal };

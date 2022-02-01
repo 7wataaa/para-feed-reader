@@ -58,7 +58,7 @@ const FeedURLForm = styled.input`
 `;
 
 const FormErrorMessage = styled.div`
-  color: tomato;
+  color: #e5534b;
 `;
 
 const FeedCreationButton = styled.button`
