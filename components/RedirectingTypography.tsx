@@ -36,7 +36,7 @@ const RedirectingTypographyAnim = styled.div`
     animation-delay: 0.9s;
   }
   span:nth-child(11) {
-    animation-delay: 1ms;
+    animation-delay: 1s;
   }
   span:nth-child(12) {
     animation-delay: 1.1s;
