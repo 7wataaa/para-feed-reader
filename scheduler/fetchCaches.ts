@@ -1,3 +1,5 @@
+// Heroku Schedulerによって定期実行されるファイル
+
 import { prisma } from '../prisma/PrismaClient';
 import { sleep } from '../util/sleep';
 import axios from 'axios';
@@ -15,7 +17,6 @@ const rssParser = new Parser();
 
 const sleep3s = () => sleep(3000);
 
-// Heroku Schedulerによって定期実行される関数
 (async () => {
   // キャッシュするURLの一覧
   const urls = (
