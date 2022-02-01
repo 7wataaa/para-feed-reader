@@ -7,8 +7,7 @@ import { ResponseBodyBase } from './_ResponseBodyBase';
 
 const rssParser = new Parser();
 
-const urlRegExp =
-  /https?:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#\u3000-\u30FE\u4E00-\u9FA0\uFF01-\uFFE3]+/g;
+const urlRegExp = new RegExp(/^https?:\/\/[\w!?/+\-_~;.,*&@#$%()'[\]]+$/);
 
 interface FeedCreateResponseBody extends ResponseBodyBase {
   data: {
@@ -38,18 +37,16 @@ const feedCreateApi = async (
     return;
   }
 
-  const { url } = req.query;
+  const url = req.query.url;
 
   // urlが不正な場合弾く
-  if (!url || typeof url != 'string' || !urlRegExp.test(url)) {
+  if (typeof url !== 'string' || !urlRegExp.test(url)) {
     res.statusCode = 400;
     res.statusMessage = 'Invalid url query';
     res.end();
 
     return;
   }
-
-  console.log(`(${url})のキャッシュを作成 by ${session.user.id}`);
 
   const alreadyFeedCache = await prisma.feedCaches.findUnique({
     where: {
@@ -71,6 +68,8 @@ const feedCreateApi = async (
 
     return;
   }
+
+  console.log(`(${url})のキャッシュを作成 by ${session.user.id}`);
 
   const getRes = await axios.get(url).catch((e: AxiosError) => {
     console.error(e);
