@@ -162,7 +162,7 @@ const ColumnCreationModal = ({
       {...props}
     >
       <form onSubmit={handleSubmit(onSubmit)}>
-        <FormLabel>追加したいフィードのURLを入力してください…</FormLabel>
+        <FormLabel>追加したいRSSフィードのURLを入力してください…</FormLabel>
         <Controller
           name="feedURLForm"
           rules={{
