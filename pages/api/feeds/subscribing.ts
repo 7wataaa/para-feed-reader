@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/react';
 import { SUBSCRIPTION_LIMIT } from '../../../config';
 import { prisma } from '../../../prisma/PrismaClient';
-import { ResponseBodyBase } from './_ResponseBodyBase';
+import { ResponseBodyBase, ResponseError } from './_ResponseBase';
 
 const uuidRegExp =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -21,8 +21,10 @@ const feedsSubscibingApi = async (
       break;
 
     default:
-      res.statusCode = 404;
-      res.end();
+      res.status(404).json({
+        code: 404,
+        message: 'Not Found',
+      });
       break;
   }
 };
@@ -36,15 +38,16 @@ interface FeedSubscribingGETApiResponseBody extends ResponseBodyBase {
 
 const feedsSubscibingGETApi = async (
   req: NextApiRequest,
-  res: NextApiResponse<FeedSubscribingGETApiResponseBody>
+  res: NextApiResponse<FeedSubscribingGETApiResponseBody | ResponseError>
 ) => {
   // ユーザーの情報
   const session = await getSession({ req });
 
   if (!session || !session.user?.id) {
-    res.statusCode = 401;
-    res.statusMessage = 'Unauthorized';
-    res.end();
+    res.status(401).json({
+      code: 401,
+      message: 'Unauthorized',
+    });
     return;
   }
 
@@ -70,11 +73,14 @@ const feedsSubscibingGETApi = async (
   console.log(`(${subscribingFeeds?.id})を取得 by ${session.user.id}`);
 
   if (!subscribingFeeds) {
-    res.statusCode = 500;
-    res.end();
+    res.status(500).json({
+      code: 500,
+      message: 'Internal Server Error',
+    });
     return;
   }
 
+  res.statusMessage = 'Completed fetching subscribing feed ids';
   res.status(200).json({
     code: 200,
     message: 'Completed fetching subscribing feed ids',
@@ -98,15 +104,16 @@ interface FeedSubscribingPOSTApiResponseBody extends ResponseBodyBase {
 
 const feedsSubscibingPOSTApi = async (
   req: NextApiRequest,
-  res: NextApiResponse<FeedSubscribingPOSTApiResponseBody>
+  res: NextApiResponse<FeedSubscribingPOSTApiResponseBody | ResponseError>
 ) => {
   // ユーザーの情報
   const session = await getSession({ req });
 
   if (!session || !session.user?.id) {
-    res.statusCode = 401;
-    res.statusMessage = 'Unauthorized';
-    res.end();
+    res.status(401).json({
+      code: 401,
+      message: 'Unauthorized',
+    });
     return;
   }
 
@@ -120,16 +127,20 @@ const feedsSubscibingPOSTApi = async (
     false;
 
   if (!body || !('subscribingFeedIdOrder' in body) || !testAll) {
-    res.statusCode = 400;
-    res.end();
+    res.status(400).json({
+      code: 400,
+      message: 'Bad Request',
+    });
     return;
   }
 
   // 購読している数がSUBSCRIPTION_LIMITより大きければ受け付けない
   if (body.subscribingFeedIdOrder.length > SUBSCRIPTION_LIMIT) {
-    res.statusCode = 400;
     res.statusMessage = `Exceeds SUBSCRIPTION_LIMIT (${SUBSCRIPTION_LIMIT})`;
-    res.end();
+    res.status(400).json({
+      code: 400,
+      message: `Exceeds SUBSCRIPTION_LIMIT (${SUBSCRIPTION_LIMIT})`,
+    });
     return;
   }
 
@@ -148,7 +159,8 @@ const feedsSubscibingPOSTApi = async (
     },
   });
 
-  res.json({
+  res.statusMessage = 'Update to new order';
+  res.status(200).json({
     code: 200,
     message: 'Update to new order',
     data: {

@@ -1,11 +1,12 @@
 import { ErrorMessage } from '@hookform/error-message';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { styled } from 'linaria/lib/react';
 import { useContext } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import Modal from 'react-modal';
 import { SUBSCRIPTION_LIMIT } from '../../config';
 import { FeedCreateResponseBody } from '../../pages/api/feeds/create';
+import { ResponseError } from '../../pages/api/feeds/_ResponseBase';
 import { FeedIdOrderContext } from '../../provider/FeedIdOrderProvider';
 
 // https://reactcommunity.org/react-modal/examples/set_app_element/
@@ -116,13 +117,58 @@ const ColumnCreationModal = ({
 
     // urlからDBのfeedIdを取得する
     const feedIdRes = await axios
-      .post<FeedCreateResponseBody>(`/api/feeds/create?url=${url}`)
-      .catch((e) => {
+      .post<FeedCreateResponseBody | ResponseError>(
+        `/api/feeds/create?url=${url}`
+      )
+      .catch((e: AxiosError<ResponseError>) => {
         console.error(e);
-        return null;
+        return e;
       });
 
-    if (!feedIdRes || feedIdRes.status !== 200) {
+    const isResponseError = (e: any): e is AxiosError =>
+      e?.code !== 200 ?? true;
+
+    if (isResponseError(feedIdRes)) {
+      // /api/create で出力されるステータスメッセージごとにエラーメッセージを表示
+      switch (feedIdRes?.response?.data.message ?? feedIdRes?.message) {
+        case 'Unauthorized':
+          setError('feedURLForm', {
+            type: 'manual',
+            message:
+              '再ログインが必要です。このページを再読込してやり直してください。',
+          });
+          break;
+
+        case 'Invalid url query':
+          setError('feedURLForm', {
+            type: 'manual',
+            message: '正しいURLを入力してください。',
+          });
+          break;
+
+        case 'Fetch failed':
+          setError('feedURLForm', {
+            type: 'manual',
+            message: '不明なエラーにより、データの取得ができませんでした。',
+          });
+          break;
+
+        case 'Data parsing failed':
+          setError('feedURLForm', {
+            type: 'manual',
+            message:
+              'URLの内容がRSSフィードではありません。正しいRSSフィードのURLを入力してください。',
+          });
+          break;
+
+        default:
+          setError('feedURLForm', {
+            type: 'manual',
+            message: '不明なエラーが発生し、フィードが登録できませんでした。',
+          });
+          break;
+      }
+
       return;
     }
 
