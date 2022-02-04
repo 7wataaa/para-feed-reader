@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/react';
 import Parser from 'rss-parser';
 import { prisma } from '../../../prisma/PrismaClient';
-import { ResponseBodyBase } from './_ResponseBodyBase';
+import { ResponseBodyBase, ResponseError } from './_ResponseBase';
 
 const rssParser = new Parser();
 
@@ -19,7 +19,7 @@ interface FeedCreateResponseBody extends ResponseBodyBase {
 
 const feedCreateApi = async (
   req: NextApiRequest,
-  res: NextApiResponse<FeedCreateResponseBody>
+  res: NextApiResponse<FeedCreateResponseBody | ResponseError>
 ) => {
   if (req.method !== 'POST') {
     res.status(404).end();
@@ -30,9 +30,10 @@ const feedCreateApi = async (
   const session = await getSession({ req });
 
   if (!session || !session.user?.id) {
-    res.statusCode = 401;
-    res.statusMessage = 'Unauthorized';
-    res.end();
+    res.status(401).json({
+      code: 401,
+      message: 'Unauthorized',
+    });
 
     return;
   }
@@ -41,9 +42,11 @@ const feedCreateApi = async (
 
   // urlが不正な場合弾く
   if (typeof url !== 'string' || !urlRegExp.test(url)) {
-    res.statusCode = 400;
     res.statusMessage = 'Invalid url query';
-    res.end();
+    res.status(400).json({
+      code: 400,
+      message: 'Invalid url query',
+    });
 
     return;
   }
@@ -56,6 +59,7 @@ const feedCreateApi = async (
 
   if (alreadyFeedCache) {
     // すでに同じURLで登録されているキャッシュがあればそのIDを返す
+    res.statusMessage = 'Already created';
     res.status(200).json({
       code: 200,
       message: 'Already created',
@@ -79,10 +83,14 @@ const feedCreateApi = async (
 
   // ユーザーが指定したURLへのリクエストが失敗した場合
   if ('errorDetails' in getRes) {
-    res.statusCode = 500;
     res.statusMessage = 'Fetch failed';
-    res.write(getRes.errorDetails);
-    res.end();
+    res.status(500).json({
+      code: 500,
+      message: 'Fetch failed',
+      data: {
+        details: getRes.errorDetails.toJSON(),
+      },
+    });
 
     return;
   }
@@ -96,9 +104,11 @@ const feedCreateApi = async (
 
   // データのパースが失敗したとき
   if (!parsedFeed) {
-    res.statusCode = 400;
     res.statusMessage = 'Data parsing failed';
-    res.end();
+    res.status(400).json({
+      code: 400,
+      message: 'Data parsing failed',
+    });
 
     return;
   }
@@ -112,6 +122,7 @@ const feedCreateApi = async (
   });
 
   // 作成完了、IDとURLとデータを返す
+  res.statusMessage = 'Creation complete';
   res.status(200).json({
     code: 200,
     message: 'Creation complete',
