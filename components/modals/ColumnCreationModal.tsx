@@ -126,7 +126,7 @@ const ColumnCreationModal = ({
       });
 
     const isResponseError = (e: any): e is AxiosError =>
-      (e?.code !== 200 ?? true) || (e?.status !== 200 ?? true);
+      (e?.code !== 200 ?? false) || (e?.status !== 200 ?? true);
 
     if (isResponseError(feedIdRes)) {
       console.log(feedIdRes);
