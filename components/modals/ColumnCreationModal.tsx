@@ -1,5 +1,5 @@
 import { ErrorMessage } from '@hookform/error-message';
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import { styled } from 'linaria/lib/react';
 import { useContext } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -126,15 +126,14 @@ const ColumnCreationModal = ({
       });
 
     const isResponseError = (e: any): e is AxiosError =>
-      (e?.code !== 200 ?? false) || (e?.status !== 200 ?? true);
+      (e?.code !== 200 ?? true) || (e?.status !== 200 ?? true);
 
-    if (isResponseError(feedIdRes)) {
-      console.log(feedIdRes);
-      console.log(
-        feedIdRes?.response?.data.message ??
-          feedIdRes?.message ??
-          'messageがない'
-      );
+    const isAlreadyCreatedRes = (
+      e: any
+    ): e is AxiosResponse<FeedCreateResponseBody> =>
+      e?.status == 200 || e?.response?.code == 200 || e?.code == 200;
+
+    if (!isAlreadyCreatedRes(feedIdRes) && isResponseError(feedIdRes)) {
       // /api/create で出力されるステータスメッセージごとにエラーメッセージを表示
       switch (feedIdRes?.response?.data.message ?? feedIdRes?.message) {
         case 'Unauthorized':
