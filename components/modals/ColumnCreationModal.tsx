@@ -129,6 +129,12 @@ const ColumnCreationModal = ({
       e?.code !== 200 ?? true;
 
     if (isResponseError(feedIdRes)) {
+      console.log(feedIdRes);
+      console.log(
+        feedIdRes?.response?.data.message ??
+          feedIdRes?.message ??
+          'messageがない'
+      );
       // /api/create で出力されるステータスメッセージごとにエラーメッセージを表示
       switch (feedIdRes?.response?.data.message ?? feedIdRes?.message) {
         case 'Unauthorized':
