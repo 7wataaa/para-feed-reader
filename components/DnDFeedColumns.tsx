@@ -17,6 +17,13 @@ const FeedsArea = styled.div`
   width: 100%;
   height: 100%;
   overflow-x: scroll;
+
+  // スクロールバーを消す
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  & ::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 // 参考: https://codesandbox.io/s/mmrp44okvj
